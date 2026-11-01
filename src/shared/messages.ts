@@ -27,8 +27,9 @@ export type RuntimeMessage =
   | { type: 'live:start'; target: 'offscreen'; tabId: number; streamId: string; settings: Settings }
   | { type: 'live:stop'; target: 'offscreen'; tabId: number }
   | { type: 'live:settings'; target: 'offscreen'; settings: Settings }
-  | { type: 'engine:preload'; target: 'offscreen'; model: ModelId }
-  | { type: 'engine:states'; target: 'offscreen' }
+  /** `live` addresses the engine reserved for live mode instead of the shared one. */
+  | { type: 'engine:preload'; target: 'offscreen'; model: ModelId; live?: boolean }
+  | { type: 'engine:states'; target: 'offscreen'; live?: boolean }
   /** Test hook: returns a live session's recording when the debug flag is on. */
   | { type: 'live:debug-dump'; target: 'offscreen'; tabId: number }
   // offscreen → background / popup

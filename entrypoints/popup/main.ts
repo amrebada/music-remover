@@ -2,7 +2,7 @@ import { browser } from 'wxt/browser';
 import { isModelCached } from '@/src/engine/modelCache';
 import { MODEL_FOR_QUALITY, MODELS } from '@/src/engine/models';
 import type { ModelState } from '@/src/engine/protocol';
-import { liveDelaySec } from '@/src/live/presets';
+import { liveDelayMs } from '@/src/live/presets';
 import type { RuntimeMessage, TabStatus } from '@/src/shared/messages';
 import { getSettings, type Settings, updateSettings } from '@/src/shared/settings';
 
@@ -40,7 +40,7 @@ function renderTab(status: TabStatus | undefined) {
   } else {
     tabStatus.textContent = 'No supported video playing here. Use live mode on any site.';
   }
-  liveHint.textContent = `Live mode works on any site and adds about ${liveDelaySec(settings.liveLatency)} s of delay.`;
+  liveHint.textContent = `Live mode works on any site and delays the sound by about ${liveDelayMs(settings.liveLatency)} ms.`;
 }
 
 async function refreshTab() {
@@ -69,6 +69,7 @@ function bindSettings() {
   strength.value = String(Math.round(settings.strength * 100));
   strengthValue.value = `${strength.value}%`;
   quality.value = settings.quality;
+  for (const option of liveLatency.options) option.textContent += ` (about ${liveDelayMs(option.value as Settings['liveLatency'])} ms)`;
   liveLatency.value = settings.liveLatency;
   whenNotReady.value = settings.whenNotReady;
 

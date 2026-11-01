@@ -10,6 +10,8 @@ import { decodePcm, encodePcm } from '@/src/shared/pcm';
 import type { Settings } from '@/src/shared/settings';
 
 const engine = new EngineClient();
+// Live mode gets its own worker, so a long lookahead job never holds up a live block.
+const liveEngine = new EngineClient();
 const sessions = new Map<number, LiveSession>();
 const ports = new Set<Browser.runtime.Port>();
 
@@ -20,7 +22,7 @@ engine.onModelState((model, state) => {
 
 async function startLive(tabId: number, streamId: string, settings: Settings) {
   sessions.get(tabId)?.stop();
-  const session = new LiveSession(tabId, engine, settings, (error) => {
+  const session = new LiveSession(tabId, liveEngine, settings, (error) => {
     sessions.delete(tabId);
     browser.runtime.sendMessage({ type: 'live:ended', tabId, error } satisfies RuntimeMessage).catch(() => {});
   });
@@ -51,24 +53,25 @@ browser.runtime.onMessage.addListener((msg: RuntimeMessage, _sender, sendRespons
       sendResponse({ ok: true });
       return;
     case 'engine:preload':
-      engine.preload(msg.model);
+      (msg.live ? liveEngine : engine).preload(msg.model);
       sendResponse({ ok: true });
       return;
     case 'live:debug-dump': {
-      const recorder = sessions.get(msg.tabId)?.recorder;
-      if (!recorder) {
+      const session = sessions.get(msg.tabId);
+      const recorder = session?.recorder;
+      if (!session || !recorder) {
         sendResponse(null);
         return;
       }
       // Messages are JSON, so thin the recording to a quarter of the rate first.
       const thin = (x: Float32Array) => Array.from(x.filter((_, i) => i % 4 === 0));
       const [processed, original] = recorder.dump();
-      sendResponse({ rate: recorder.rate / 4, processed: thin(processed), original: thin(original) });
-      return;
+      void session.stats().then((stats) => sendResponse({ rate: recorder.rate / 4, processed: thin(processed), original: thin(original), stats }));
+      return true;
     }
     case 'engine:states': {
       const states: Partial<Record<ModelId, ModelState>> = {};
-      for (const model of ['umx-vocals', 'htdemucs'] as const) states[model] = engine.modelState(model);
+      for (const model of ['umx-vocals', 'htdemucs'] as const) states[model] = (msg.live ? liveEngine : engine).modelState(model);
       sendResponse(states);
       return;
     }

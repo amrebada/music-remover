@@ -14,8 +14,15 @@ export async function isModelCached(info: ModelInfo): Promise<boolean> {
   return (await cache.match(info.url)) !== undefined;
 }
 
-/** Returns the model bytes, downloading and verifying them on first use. */
+/**
+ * Returns the model bytes, downloading and verifying them on first use. Two
+ * engines asking at once share one download: the second waits, then reads the cache.
+ */
 export async function loadModelBytes(info: ModelInfo, onProgress?: DownloadProgress): Promise<Uint8Array<ArrayBuffer>> {
+  return await navigator.locks.request(`${CACHE_NAME}:${info.id}`, () => loadLocked(info, onProgress));
+}
+
+async function loadLocked(info: ModelInfo, onProgress?: DownloadProgress): Promise<Uint8Array<ArrayBuffer>> {
   const cache = await caches.open(CACHE_NAME);
   const hit = await cache.match(info.url);
   if (hit) return new Uint8Array(await hit.arrayBuffer());

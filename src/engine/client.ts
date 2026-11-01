@@ -4,7 +4,7 @@ import type { Stereo } from './separator';
 
 export type JobInput = Omit<SeparateJob, 'id'>;
 
-/** Main-thread handle to the inference worker. One instance serves every tab. */
+/** Main-thread handle to one inference worker and the models loaded in it. */
 export class EngineClient {
   private readonly worker: Worker;
   private nextId = 1;

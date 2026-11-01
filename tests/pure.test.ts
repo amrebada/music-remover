@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { mixRegion, resample, type Stereo } from '../src/engine/separator';
+import { Stft } from '../src/engine/stft';
 import { FrameBuffer } from '../src/live/frameBuffer';
 import { blockAt, planNextJob, type PlanInput } from '../src/lookahead/planner';
 import { PcmTimeline } from '../src/lookahead/timeline';
@@ -157,5 +158,50 @@ describe('VoiceStore', () => {
     expect(store.at(13)?.start).toBe(12);
     store.prune(50, 30);
     expect(store.has(0)).toBe(false);
+  });
+});
+
+describe('Stft', () => {
+  const stft = new Stft(512, 128);
+  const length = 3000;
+  const noise = (seed: number) => Float32Array.from({ length }, (_, i) => Math.sin(i * 0.37 * seed + seed) * Math.cos(i * 0.011 * seed));
+
+  it('matches a direct DFT for each channel of a stereo pair', () => {
+    const left = noise(1);
+    const right = noise(2);
+    const [l, r] = stft.forward(left, right);
+    const frame = 5;
+    for (const [signal, spec] of [
+      [left, l],
+      [right, r],
+    ] as const) {
+      for (const k of [0, 3, 100, 256]) {
+        let re = 0;
+        let im = 0;
+        for (let i = 0; i < 512; i++) {
+          const x = signal[frame * 128 - 256 + i] * (0.5 - 0.5 * Math.cos((2 * Math.PI * i) / 512));
+          re += x * Math.cos((2 * Math.PI * k * i) / 512);
+          im -= x * Math.sin((2 * Math.PI * k * i) / 512);
+        }
+        expect(spec.real[frame * stft.bins + k]).toBeCloseTo(re, 3);
+        expect(spec.imag[frame * stft.bins + k]).toBeCloseTo(im, 3);
+      }
+    }
+  });
+
+  it('round-trips both channels, including a partial resynthesis', () => {
+    const left = noise(3);
+    const right = noise(4);
+    const specs = stft.forward(left, right);
+    const [outL, outR] = stft.inverse(specs, length);
+    for (let i = 0; i < length; i++) {
+      expect(Math.abs(outL[i] - left[i])).toBeLessThan(1e-5);
+      expect(Math.abs(outR[i] - right[i])).toBeLessThan(1e-5);
+    }
+    const [partL, partR] = stft.inverse(specs, length, 1000, 1200);
+    for (let i = 1000; i < 1200; i++) {
+      expect(Math.abs(partL[i] - left[i])).toBeLessThan(1e-5);
+      expect(Math.abs(partR[i] - right[i])).toBeLessThan(1e-5);
+    }
   });
 });

@@ -9,8 +9,11 @@ export interface Separator {
   readonly id: ModelId;
   /** Longest window (in 44.1 kHz frames) one call accepts. */
   readonly maxWindow: number;
-  /** Returns the voice estimate for a 44.1 kHz stereo window of the same length. */
-  separateVoice(input: Stereo): Promise<Stereo>;
+  /**
+   * Returns the voice estimate for a 44.1 kHz stereo window of the same length.
+   * Only frames [keep[0], keep[1]) are guaranteed; the rest may be left at zero.
+   */
+  separateVoice(input: Stereo, keep?: [number, number]): Promise<Stereo>;
 }
 
 /**

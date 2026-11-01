@@ -4,7 +4,7 @@
 import { join } from 'node:path';
 import { expect, test } from '@playwright/test';
 import { readWav } from '../../scripts/wav.mjs';
-import { LIVE_PRESETS } from '../../src/live/presets';
+import { LIVE_PRESETS, LIVE_RATE } from '../../src/live/presets';
 import { ANALYSIS_RATE, bestLag, fitTwo, toAnalysisRate } from './analysis';
 import { controlPage, extensionId, launch, ROOT, send } from './helpers';
 
@@ -23,9 +23,9 @@ test('live mode cleans a captured tab with the expected delay', async () => {
   const control = await controlPage(context);
   await control.evaluate(() => localStorage.setItem('music-remover-debug', '1'));
   await send(control, { type: 'offscreen:ensure' });
-  await send(control, { type: 'engine:preload', target: 'offscreen', model: 'umx-vocals' });
+  await send(control, { type: 'engine:preload', target: 'offscreen', model: 'umx-vocals', live: true });
   await expect
-    .poll(() => send<Record<string, { status: string }>>(control, { type: 'engine:states', target: 'offscreen' }).then((s) => s['umx-vocals'].status), {
+    .poll(() => send<Record<string, { status: string }>>(control, { type: 'engine:states', target: 'offscreen', live: true }).then((s) => s['umx-vocals'].status), {
       timeout: 120_000,
     })
     .toBe('ready');
@@ -41,7 +41,12 @@ test('live mode cleans a captured tab with the expected delay', async () => {
   await tab.click('button');
 
   await tab.waitForTimeout(26_000);
-  const dump = await send<{ rate: number; processed: number[]; original: number[] }>(control, {
+  const dump = await send<{
+    rate: number;
+    processed: number[];
+    original: number[];
+    stats: { underruns: number; dropped: number; skipped: number; blockFrames: number };
+  }>(control, {
     type: 'live:debug-dump',
     target: 'offscreen',
     tabId,
@@ -58,9 +63,6 @@ test('live mode cleans a captured tab with the expected delay', async () => {
   // The tab loops the fixture; align on its first pass.
   const start = bestLag(original, second(mix, 0, 8));
   const delay = (bestLag(processed, second(speech, 0, 8)) - start) / ANALYSIS_RATE;
-  const preset = LIVE_PRESETS.balanced;
-  expect(delay).toBeGreaterThan(preset.block + preset.future - 0.05);
-  expect(delay).toBeLessThan(preset.block * 2 + preset.future + 0.5);
 
   // The captured tab's clock drifts slightly from the file's, so fit in 2 s pieces,
   // each at its own alignment, and judge the medians.
@@ -75,7 +77,22 @@ test('live mode cleans a captured tab with the expected delay', async () => {
     untouched.push(orig.b / orig.a);
   }
   const ratio = median(heard.map((h) => h.ratio));
-  console.log(`[live] delay ${delay.toFixed(2)} s, music/speech weight: original ${median(untouched).toFixed(2)}, heard ${ratio.toFixed(2)}`);
+  // The delay at the end, after any late blocks: processed against what was captured.
+  const end = processed.length - ANALYSIS_RATE;
+  const endDelay = bestLag(processed.subarray(end - 4 * ANALYSIS_RATE, end), original.subarray(end - 4 * ANALYSIS_RATE, end - ANALYSIS_RATE)) / ANALYSIS_RATE;
+  console.log(
+    `[live] delay ${Math.round(delay * 1000)} ms (${Math.round(endDelay * 1000)} ms at the end), music/speech weight: original ${median(untouched).toFixed(2)}, heard ${ratio.toFixed(2)}, ` +
+      `playback ${JSON.stringify(dump.stats)}`,
+  );
+  // A block plays once its future context has arrived and it is cleaned; the target is under 200 ms.
+  const preset = LIVE_PRESETS.balanced;
+  expect(delay).toBeGreaterThan((preset.block + preset.future) / LIVE_RATE);
+  expect(delay).toBeLessThan(0.2);
+  expect(endDelay).toBeLessThan(0.2);
+  // Small blocks must still arrive in time. A busy machine can make the odd block
+  // late; the worklet then pads a little and sheds the excess, so allow a couple.
+  expect(dump.stats.underruns).toBeLessThanOrEqual(2);
+  expect(dump.stats).toMatchObject({ skipped: 0, blockFrames: preset.block });
   expect(median(untouched)).toBeGreaterThan(0.8);
   expect(ratio).toBeLessThan(0.3);
   expect(median(heard.map((h) => h.a))).toBeGreaterThan(0.6);

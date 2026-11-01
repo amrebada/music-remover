@@ -12,7 +12,18 @@ test('cleans a real YouTube video in sync', async () => {
   const page = await context.newPage();
   await page.goto('https://www.youtube.com/watch?v=jNQXAC9IVRw', { waitUntil: 'domcontentloaded' });
   await page.waitForSelector('video', { timeout: 30_000 });
-  await page.waitForTimeout(5000);
+  // Measure with the model loaded, as on every visit after the first.
+  const modelStatus = () =>
+    page.evaluate(
+      () =>
+        new Promise<string>((resolve) => {
+          addEventListener('message', (e) => {
+            if (e.data?.source === 'music-remover-debug-reply') resolve(e.data.model.status);
+          });
+          postMessage({ source: 'music-remover-debug' }, '*');
+        }),
+    );
+  await expect.poll(modelStatus, { timeout: 120_000 }).toBe('ready');
   await page.locator('#movie_player').click({ timeout: 5000, force: true }).catch(() => {});
   await page.keyboard.press('k');
   await page.waitForTimeout(15_000);
@@ -31,6 +42,12 @@ test('cleans a real YouTube video in sync', async () => {
   await context.close();
 
   expect(dump.active).toBe(true);
+  // Until the first cleaned block is ready the output is exactly silent.
+  const firstOriginal = dump.original.findIndex((x) => Math.abs(x) > 1e-4);
+  const firstSound = dump.processed.findIndex((x, i) => i >= firstOriginal && Math.abs(x) > 1e-6);
+  const gapMs = ((firstSound - firstOriginal) / dump.rate) * 1000;
+  console.log(`[youtube] silent for ${Math.round(gapMs)} ms after the audio started`);
+  expect(gapMs).toBeLessThan(500);
   const processed = toAnalysisRate(Float32Array.from(dump.processed), dump.rate);
   const original = toAnalysisRate(Float32Array.from(dump.original), dump.rate);
   const end = original.length - 2 * ANALYSIS_RATE;

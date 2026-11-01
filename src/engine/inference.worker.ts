@@ -42,8 +42,11 @@ async function createSeparator(id: ModelId): Promise<Separator> {
     // HTDemucs breaks with ORT's full graph fusion; demucs-web uses 'basic' as well.
     graphOptimizationLevel: id === 'htdemucs' ? 'basic' : 'all',
   });
+  const separator = id === 'htdemucs' ? new DemucsSeparator(ort, session) : new UmxSeparator(ort, session);
+  // The first run allocates ORT's buffers; do it now so live mode's first block is not late.
+  if (id === 'umx-vocals') await separator.separateVoice([new Float32Array(MODEL_RATE), new Float32Array(MODEL_RATE)]);
   postModel(id, { status: 'ready', backend: providers[0] });
-  return id === 'htdemucs' ? new DemucsSeparator(ort, session) : new UmxSeparator(ort, session);
+  return separator;
 }
 
 function getSeparator(id: ModelId): Promise<Separator> {
@@ -63,9 +66,9 @@ async function run(job: SeparateJob) {
   const separator = await getSeparator(job.model);
   const input: Stereo = [resample(job.left, job.sampleRate, MODEL_RATE), resample(job.right, job.sampleRate, MODEL_RATE)];
   if (input[0].length > separator.maxWindow) throw new Error('Window longer than the model accepts');
-  const voice = await separator.separateVoice(input);
   const from = Math.max(0, Math.round(job.keepFromSec * MODEL_RATE));
   const to = Math.min(input[0].length, Math.round(job.keepToSec * MODEL_RATE));
+  const voice = await separator.separateVoice(input, [from, to]);
   const [left, right] = mixRegion(input, voice, job.strength, from, to);
   post({ type: 'result', id: job.id, left, right }, [left.buffer, right.buffer]);
 }

@@ -5,7 +5,7 @@ A Chrome extension that removes background music from videos and keeps the voice
 It has two modes:
 
 - **Automatic (lookahead)** on YouTube, Facebook, Instagram and LinkedIn. The extension copies each audio segment the site's player downloads, cleans it before the playhead reaches it, and plays the cleaned audio in sync with the video while the original is silenced. There is no added delay.
-- **Live**, on any tab. Click **Start live mode** in the popup (or press <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>M</kbd>). The tab's audio is captured, cleaned in short blocks and played back. This adds about 1–4 s of delay, depending on the "Live mode delay" setting.
+- **Live**, on any tab. Click **Start live mode** in the popup (or press <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>M</kbd>). The tab's audio is captured, cleaned in 46–70 ms blocks and played back. This delays the sound by about 140–190 ms, depending on the "Live mode delay" setting (about 155 ms by default); the video picture is not delayed.
 
 ## Try it
 
@@ -38,7 +38,7 @@ page (isolated world)   player: fMP4 demux (mp4box) → WebCodecs decode → tim
                         planner picks the next block → engine → VoiceStore → SyncPlayer
                         (routes <video> through Web Audio, mutes it, schedules cleaned audio)
 offscreen document      engine: ONNX Runtime Web in a worker, model cache;
-                        live sessions: tab capture → AudioWorklet → engine → AudioWorklet
+                        live sessions: tab capture → AudioWorklet → own engine worker → AudioWorklet
 background worker       per-tab state, badge, tab capture, offscreen lifecycle
 ```
 
@@ -65,7 +65,7 @@ pnpm test:e2e
 - `pnpm test` runs the unit tests. Put the models in `fixtures/models/` (`umx-vocals.onnx`, `htdemucs.onnx`) to also run the separator tests.
 - `pnpm test:e2e` loads the built extension in Playwright's Chromium:
   - It plays the fixture through MediaSource on a page served as `www.youtube.com`, and captures a real tab for live mode.
-  - It then checks what was actually heard: lip-sync within 45 ms in lookahead mode, the expected delay in live mode, and how much music is left.
+  - It then checks what was actually heard: lip-sync within 45 ms in lookahead mode, a delay under 200 ms without dropouts in live mode, and how much music is left.
   - Current results: music weight drops from 1.00 to 0.20 with Fast and to 0.02 with High quality. Sync error is about 2 ms.
   - The live-mode test unmutes the browser, so the test clip may be audible.
 - `REAL_SITES=1 pnpm test:e2e` also checks a real YouTube video.
