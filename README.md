@@ -72,6 +72,29 @@ pnpm test:e2e
 
 Debug recording is off unless `localStorage['music-remover-debug'] = '1'` (see `src/shared/debug.ts`).
 
+## Languages
+
+The extension is in English and Arabic; Arabic is laid out right to left. By default it follows Chrome's display language, and **Language** at the bottom of the popup's settings switches the popup and the messages over videos at once. The texts are in `public/_locales/<language>/messages.json`. Chrome also uses them for the extension's name in its own menus and for the store listing, which always follow Chrome's language.
+
+## Logo and store images
+
+`branding/` holds the logo (`logo.svg`, and `logo-small.svg` for 16 and 32 px) and the Chrome Web Store images in English and Arabic, laid out in `store.html`. To redraw the extension icons in `public/icon/` and the store images in `branding/store/en/` and `branding/store/ar/`:
+
+```bash
+pnpm build && pnpm brand
+```
+
+The screenshots show the real popup in each language, which is why the extension is built first. ffmpeg saves the store images as 24-bit PNGs without transparency, as the store asks.
+
+In each language folder:
+
+| File | Store field |
+|---|---|
+| `store-icon-128.png` | Store icon |
+| `screenshot-1-voices.png` … `screenshot-4-private.png` (1280×800) | Screenshots |
+| `promo-small-440x280.png` | Small promo tile |
+| `promo-marquee-1400x560.png` | Marquee promo tile |
+
 ## Known limits
 
 - Lookahead understands fragmented MP4 (AAC or Opus). On YouTube the extension reports WebM audio as unsupported so the player serves AAC. Players that use other containers, MSE inside workers, or DRM fall back to live mode.

@@ -1,0 +1,173 @@
+{
+  "extName": {
+    "message": "مزيل الموسيقى"
+  },
+  "extDescription": {
+    "message": "يحذف الموسيقى الخلفية من الفيديوهات ويُبقي الأصوات، ويعمل بالكامل على جهازك."
+  },
+  "commandToggleLive": {
+    "message": "تشغيل الحذف المباشر للموسيقى في علامة التبويب هذه أو إيقافه"
+  },
+  "popupSubtitle": {
+    "message": "يُبقي الأصوات ويحذف الموسيقى، ويعمل على جهازك."
+  },
+  "thisTab": {
+    "message": "علامة التبويب هذه"
+  },
+  "checking": {
+    "message": "جارٍ التحقق…"
+  },
+  "startLive": {
+    "message": "تشغيل الوضع المباشر"
+  },
+  "stopLive": {
+    "message": "إيقاف الوضع المباشر"
+  },
+  "liveOn": {
+    "message": "الوضع المباشر يعمل: تسمع صوت علامة التبويب بعد تنقيته."
+  },
+  "liveStopped": {
+    "message": "توقف الوضع المباشر: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1"
+      }
+    }
+  },
+  "clickToEnable": {
+    "message": "انقر مرة واحدة على صفحة الفيديو لتشغيل الصوت المنقّى."
+  },
+  "removingAuto": {
+    "message": "تُحذف الموسيقى تلقائيًا · $SECONDS$ ثانية جاهزة مسبقًا",
+    "placeholders": {
+      "seconds": {
+        "content": "$1"
+      }
+    }
+  },
+  "noVideo": {
+    "message": "لا يوجد هنا فيديو مدعوم قيد التشغيل. استخدم الوضع المباشر مع أي موقع."
+  },
+  "liveHint": {
+    "message": "يعمل الوضع المباشر مع أي موقع، ويؤخّر الصوت بنحو $MS$ ملّي ثانية.",
+    "placeholders": {
+      "ms": {
+        "content": "$1"
+      }
+    }
+  },
+  "settings": {
+    "message": "الإعدادات"
+  },
+  "removeAutomatically": {
+    "message": "حذف الموسيقى تلقائيًا"
+  },
+  "removeAutomaticallySites": {
+    "message": "يوتيوب، فيسبوك، إنستغرام، لينكدإن"
+  },
+  "musicRemoval": {
+    "message": "مقدار حذف الموسيقى"
+  },
+  "quality": {
+    "message": "الجودة"
+  },
+  "qualityFast": {
+    "message": "سريعة (نموذج بحجم 36 ميغابايت)"
+  },
+  "qualityHigh": {
+    "message": "عالية (نموذج بحجم 181 ميغابايت، يتطلب بطاقة رسومات)"
+  },
+  "modelDownloading": {
+    "message": "جارٍ التنزيل… $PERCENT$%",
+    "placeholders": {
+      "percent": {
+        "content": "$1"
+      }
+    }
+  },
+  "modelError": {
+    "message": "خطأ في النموذج: $MESSAGE$",
+    "placeholders": {
+      "message": {
+        "content": "$1"
+      }
+    }
+  },
+  "modelLoadedGpu": {
+    "message": "النموذج جاهز (بطاقة الرسومات)."
+  },
+  "modelLoadedCpu": {
+    "message": "النموذج جاهز (المعالج)."
+  },
+  "modelDownloaded": {
+    "message": "تم تنزيل النموذج."
+  },
+  "modelWillDownload": {
+    "message": "يُنزَّل $MB$ ميغابايت عند أول استخدام.",
+    "placeholders": {
+      "mb": {
+        "content": "$1"
+      }
+    }
+  },
+  "liveDelay": {
+    "message": "تأخير الوضع المباشر"
+  },
+  "latencyLow": {
+    "message": "الأقل تأخيرًا"
+  },
+  "latencyBalanced": {
+    "message": "متوازن"
+  },
+  "latencyClean": {
+    "message": "الأنقى"
+  },
+  "latencyOption": {
+    "message": "$NAME$ (نحو $MS$ ملّي ثانية)",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      },
+      "ms": {
+        "content": "$2"
+      }
+    }
+  },
+  "beforeReady": {
+    "message": "قبل أن يجهز الصوت المنقّى"
+  },
+  "notReadyMute": {
+    "message": "كتم الصوت"
+  },
+  "notReadyOriginal": {
+    "message": "تشغيل الصوت الأصلي"
+  },
+  "language": {
+    "message": "اللغة"
+  },
+  "languageAuto": {
+    "message": "تلقائي (لغة المتصفح)"
+  },
+  "chipClickToEnable": {
+    "message": "مزيل الموسيقى: انقر لتشغيل الصوت المنقّى"
+  },
+  "chipDownloading": {
+    "message": "مزيل الموسيقى: جارٍ تنزيل النموذج $PERCENT$%",
+    "placeholders": {
+      "percent": {
+        "content": "$1"
+      }
+    }
+  },
+  "chipError": {
+    "message": "مزيل الموسيقى: $MESSAGE$",
+    "placeholders": {
+      "message": {
+        "content": "$1"
+      }
+    }
+  },
+  "chipRemoving": {
+    "message": "مزيل الموسيقى: جارٍ حذف الموسيقى…"
+  }
+}

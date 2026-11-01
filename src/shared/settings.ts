@@ -3,6 +3,8 @@ import { browser } from 'wxt/browser';
 export type Quality = 'fast' | 'high';
 export type LiveLatency = 'low' | 'balanced' | 'clean';
 export type WhenNotReady = 'mute' | 'original';
+/** `auto` follows Chrome's display language. */
+export type LanguageSetting = 'auto' | 'en' | 'ar';
 
 export interface Settings {
   /** Remove music automatically on supported sites (lookahead mode). */
@@ -14,6 +16,8 @@ export interface Settings {
   liveLatency: LiveLatency;
   /** What to play while cleaned audio is not ready yet. */
   whenNotReady: WhenNotReady;
+  /** Language of the popup and the messages over videos. */
+  language: LanguageSetting;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -22,6 +26,7 @@ export const DEFAULT_SETTINGS: Settings = {
   quality: 'fast',
   liveLatency: 'balanced',
   whenNotReady: 'mute',
+  language: 'auto',
 };
 
 const KEY = 'settings';

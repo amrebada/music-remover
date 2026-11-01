@@ -3,10 +3,13 @@ import { isModelCached } from '@/src/engine/modelCache';
 import { MODEL_FOR_QUALITY, MODELS } from '@/src/engine/models';
 import type { ModelState } from '@/src/engine/protocol';
 import { liveDelayMs } from '@/src/live/presets';
+import { localizePage, setLanguage, t } from '@/src/shared/i18n';
 import type { RuntimeMessage, TabStatus } from '@/src/shared/messages';
 import { getSettings, type Settings, updateSettings } from '@/src/shared/settings';
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+// Chrome's language until the settings load; most of the time that is also the choice.
+localizePage();
 
 const tabStatus = $<HTMLParagraphElement>('tab-status');
 const liveToggle = $<HTMLButtonElement>('live-toggle');
@@ -18,29 +21,31 @@ const quality = $<HTMLSelectElement>('quality');
 const modelStatus = $<HTMLElement>('model-status');
 const liveLatency = $<HTMLSelectElement>('liveLatency');
 const whenNotReady = $<HTMLSelectElement>('whenNotReady');
+const language = $<HTMLSelectElement>('language');
 
 let settings: Settings;
 let tabId: number | undefined;
+/** Last states shown, to redraw them in another language. */
+let lastStatus: TabStatus | undefined;
+let lastModelState: ModelState | undefined;
 
 function renderTab(status: TabStatus | undefined) {
+  lastStatus = status;
   const live = !!status?.live;
-  liveToggle.textContent = live ? 'Stop live mode' : 'Start live mode';
+  liveToggle.textContent = live ? t('stopLive') : t('startLive');
   liveToggle.classList.toggle('stop', live);
   tabStatus.classList.toggle('live', live);
 
   if (live) {
-    tabStatus.textContent = 'Live mode is on: you hear the cleaned tab audio.';
+    tabStatus.textContent = t('liveOn');
   } else if (status?.liveError) {
-    tabStatus.textContent = `Live mode stopped: ${status.liveError}`;
+    tabStatus.textContent = t('liveStopped', status.liveError);
   } else if (status?.lookahead?.active) {
-    const ready = status.lookahead.readySec ?? 0;
-    tabStatus.textContent = status.lookahead.waitingForGesture
-      ? 'Click the video page once to turn on the cleaned audio.'
-      : `Removing music automatically · ${ready} s ready ahead`;
+    tabStatus.textContent = status.lookahead.waitingForGesture ? t('clickToEnable') : t('removingAuto', status.lookahead.readySec ?? 0);
   } else {
-    tabStatus.textContent = 'No supported video playing here. Use live mode on any site.';
+    tabStatus.textContent = t('noVideo');
   }
-  liveHint.textContent = `Live mode works on any site and delays the sound by about ${liveDelayMs(settings.liveLatency)} ms.`;
+  liveHint.textContent = t('liveHint', liveDelayMs(settings.liveLatency));
 }
 
 async function refreshTab() {
@@ -50,18 +55,25 @@ async function refreshTab() {
 }
 
 async function renderModel(state?: ModelState) {
+  lastModelState = state;
   const info = MODELS[MODEL_FOR_QUALITY[settings.quality]];
   if (state?.status === 'downloading') {
-    modelStatus.textContent = `Downloading… ${Math.round((state.loaded / state.total) * 100)}%`;
+    modelStatus.textContent = t('modelDownloading', Math.round((state.loaded / state.total) * 100));
   } else if (state?.status === 'error') {
-    modelStatus.textContent = `Model error: ${state.message}`;
+    modelStatus.textContent = t('modelError', state.message);
   } else if (state?.status === 'ready') {
-    modelStatus.textContent = `Model loaded (${state.backend === 'webgpu' ? 'GPU' : 'CPU'}).`;
+    modelStatus.textContent = state.backend === 'webgpu' ? t('modelLoadedGpu') : t('modelLoadedCpu');
   } else {
-    modelStatus.textContent = (await isModelCached(info))
-      ? 'Model downloaded.'
-      : `Downloads ${Math.round(info.bytes / 1e6)} MB the first time it is used.`;
+    modelStatus.textContent = (await isModelCached(info)) ? t('modelDownloaded') : t('modelWillDownload', Math.round(info.bytes / 1e6));
   }
+}
+
+/** Fills every text in the current language. */
+function renderTexts() {
+  localizePage();
+  for (const option of liveLatency.options) option.textContent = t('latencyOption', option.textContent!, liveDelayMs(option.value as Settings['liveLatency']));
+  renderTab(lastStatus);
+  void renderModel(lastModelState);
 }
 
 function bindSettings() {
@@ -69,9 +81,9 @@ function bindSettings() {
   strength.value = String(Math.round(settings.strength * 100));
   strengthValue.value = `${strength.value}%`;
   quality.value = settings.quality;
-  for (const option of liveLatency.options) option.textContent += ` (about ${liveDelayMs(option.value as Settings['liveLatency'])} ms)`;
   liveLatency.value = settings.liveLatency;
   whenNotReady.value = settings.whenNotReady;
+  language.value = settings.language;
 
   const save = async (patch: Partial<Settings>) => {
     settings = await updateSettings(patch);
@@ -90,6 +102,11 @@ function bindSettings() {
     await refreshTab();
   });
   whenNotReady.addEventListener('change', () => save({ whenNotReady: whenNotReady.value as Settings['whenNotReady'] }));
+  language.addEventListener('change', async () => {
+    await save({ language: language.value as Settings['language'] });
+    setLanguage(settings.language);
+    renderTexts();
+  });
 }
 
 liveToggle.addEventListener('click', async () => {
@@ -111,10 +128,12 @@ browser.runtime.onMessage.addListener((msg: RuntimeMessage) => {
 
 async function init() {
   settings = await getSettings();
+  setLanguage(settings.language);
   bindSettings();
+  renderTexts();
   const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
   tabId = tab?.id;
-  await Promise.all([refreshTab(), renderModel()]);
+  await refreshTab();
   setInterval(refreshTab, 1000);
 }
 

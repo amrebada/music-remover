@@ -29,6 +29,7 @@ class LiveIO extends AudioWorkletProcessor {
     this.shed = 0;
 
     this.underruns = 0;
+    this.lastUnderrun = 0;
     this.dropped = 0;
 
     this.port.onmessage = (event) => {
@@ -38,7 +39,8 @@ class LiveIO extends AudioWorkletProcessor {
         this.cushion = msg.cushion;
         this.maxCushion = msg.cushion * 2;
       } else if (msg.type === 'stats') {
-        this.port.postMessage({ type: 'stats', underruns: this.underruns, dropped: this.dropped, cushion: this.cushion });
+        const sinceUnderrun = this.underruns ? currentTime - this.lastUnderrun : null;
+        this.port.postMessage({ type: 'stats', underruns: this.underruns, sinceUnderrun, dropped: this.dropped, cushion: this.cushion });
       }
     };
   }
@@ -131,6 +133,7 @@ class LiveIO extends AudioWorkletProcessor {
       this.playing = false;
       this.shed = 0;
       this.underruns++;
+      this.lastUnderrun = currentTime;
       this.cushion = Math.min(this.maxCushion, this.cushion + CUSHION_STEP);
     }
     return true;

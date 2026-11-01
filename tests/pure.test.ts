@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { mixRegion, resample, type Stereo } from '../src/engine/separator';
 import { Stft } from '../src/engine/stft';
@@ -202,6 +204,22 @@ describe('Stft', () => {
     for (let i = 1000; i < 1200; i++) {
       expect(Math.abs(partL[i] - left[i])).toBeLessThan(1e-5);
       expect(Math.abs(partR[i] - right[i])).toBeLessThan(1e-5);
+    }
+  });
+});
+
+describe('translations', () => {
+  const catalog = (lang: string): Record<string, { message: string; placeholders?: Record<string, unknown> }> =>
+    JSON.parse(readFileSync(join(import.meta.dirname, `../public/_locales/${lang}/messages.json`), 'utf8'));
+
+  it('has every English message in Arabic, with the same placeholders', () => {
+    const en = catalog('en');
+    const ar = catalog('ar');
+    expect(Object.keys(ar).sort()).toEqual(Object.keys(en).sort());
+    for (const [key, { message, placeholders }] of Object.entries(en)) {
+      const names = (text: string) => [...text.matchAll(/\$([A-Z]+)\$/g)].map((m) => m[1]).sort();
+      expect(names(ar[key].message), key).toEqual(names(message));
+      expect(ar[key].placeholders, key).toEqual(placeholders);
     }
   });
 });

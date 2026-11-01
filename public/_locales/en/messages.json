@@ -1,0 +1,173 @@
+{
+  "extName": {
+    "message": "Music Remover"
+  },
+  "extDescription": {
+    "message": "Removes background music from videos and keeps the voices. Runs fully on your device."
+  },
+  "commandToggleLive": {
+    "message": "Start or stop live music removal on this tab"
+  },
+  "popupSubtitle": {
+    "message": "Keeps the voices, removes the music. Runs on your device."
+  },
+  "thisTab": {
+    "message": "This tab"
+  },
+  "checking": {
+    "message": "Checking…"
+  },
+  "startLive": {
+    "message": "Start live mode"
+  },
+  "stopLive": {
+    "message": "Stop live mode"
+  },
+  "liveOn": {
+    "message": "Live mode is on: you hear the cleaned tab audio."
+  },
+  "liveStopped": {
+    "message": "Live mode stopped: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1"
+      }
+    }
+  },
+  "clickToEnable": {
+    "message": "Click the video page once to turn on the cleaned audio."
+  },
+  "removingAuto": {
+    "message": "Removing music automatically · $SECONDS$ s ready ahead",
+    "placeholders": {
+      "seconds": {
+        "content": "$1"
+      }
+    }
+  },
+  "noVideo": {
+    "message": "No supported video playing here. Use live mode on any site."
+  },
+  "liveHint": {
+    "message": "Live mode works on any site and delays the sound by about $MS$ ms.",
+    "placeholders": {
+      "ms": {
+        "content": "$1"
+      }
+    }
+  },
+  "settings": {
+    "message": "Settings"
+  },
+  "removeAutomatically": {
+    "message": "Remove music automatically"
+  },
+  "removeAutomaticallySites": {
+    "message": "YouTube, Facebook, Instagram, LinkedIn"
+  },
+  "musicRemoval": {
+    "message": "Music removal"
+  },
+  "quality": {
+    "message": "Quality"
+  },
+  "qualityFast": {
+    "message": "Fast (36 MB model)"
+  },
+  "qualityHigh": {
+    "message": "High (181 MB model, needs a GPU)"
+  },
+  "modelDownloading": {
+    "message": "Downloading… $PERCENT$%",
+    "placeholders": {
+      "percent": {
+        "content": "$1"
+      }
+    }
+  },
+  "modelError": {
+    "message": "Model error: $MESSAGE$",
+    "placeholders": {
+      "message": {
+        "content": "$1"
+      }
+    }
+  },
+  "modelLoadedGpu": {
+    "message": "Model loaded (GPU)."
+  },
+  "modelLoadedCpu": {
+    "message": "Model loaded (CPU)."
+  },
+  "modelDownloaded": {
+    "message": "Model downloaded."
+  },
+  "modelWillDownload": {
+    "message": "Downloads $MB$ MB the first time it is used.",
+    "placeholders": {
+      "mb": {
+        "content": "$1"
+      }
+    }
+  },
+  "liveDelay": {
+    "message": "Live mode delay"
+  },
+  "latencyLow": {
+    "message": "Lowest"
+  },
+  "latencyBalanced": {
+    "message": "Balanced"
+  },
+  "latencyClean": {
+    "message": "Cleanest"
+  },
+  "latencyOption": {
+    "message": "$NAME$ (about $MS$ ms)",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      },
+      "ms": {
+        "content": "$2"
+      }
+    }
+  },
+  "beforeReady": {
+    "message": "Before cleaned audio is ready"
+  },
+  "notReadyMute": {
+    "message": "Mute"
+  },
+  "notReadyOriginal": {
+    "message": "Play the original"
+  },
+  "language": {
+    "message": "Language"
+  },
+  "languageAuto": {
+    "message": "Automatic (browser language)"
+  },
+  "chipClickToEnable": {
+    "message": "Music Remover: click to turn on cleaned audio"
+  },
+  "chipDownloading": {
+    "message": "Music Remover: downloading model $PERCENT$%",
+    "placeholders": {
+      "percent": {
+        "content": "$1"
+      }
+    }
+  },
+  "chipError": {
+    "message": "Music Remover: $MESSAGE$",
+    "placeholders": {
+      "message": {
+        "content": "$1"
+      }
+    }
+  },
+  "chipRemoving": {
+    "message": "Music Remover: removing music…"
+  }
+}

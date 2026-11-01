@@ -13,7 +13,8 @@
     "test:watch": "vitest",
     "test:e2e": "wxt build && playwright test",
     "fixtures": "node scripts/make-fixtures.mjs",
-    "postinstall": "wxt prepare"
+    "postinstall": "wxt prepare",
+    "brand": "node scripts/make-brand.mjs"
   },
   "dependencies": {
     "demucs-web": "1.0.2",
@@ -21,6 +22,8 @@
     "onnxruntime-web": "^1.31.1"
   },
   "devDependencies": {
+    "@fontsource-variable/alexandria": "^5.3.0",
+    "@fontsource-variable/bricolage-grotesque": "^5.3.0",
     "@playwright/test": "^1.64.1",
     "typescript": "^5.9.3",
     "vite": "^8.1.5",

@@ -2,6 +2,8 @@
   "extends": "./.wxt/tsconfig.json",
   "compilerOptions": {
     // DSP code indexes typed arrays everywhere; bounds are checked by the loops.
-    "noUncheckedIndexedAccess": false
+    "noUncheckedIndexedAccess": false,
+    // The translations in public/_locales are bundled, so the language can be picked in the popup.
+    "resolveJsonModule": true
   }
 }

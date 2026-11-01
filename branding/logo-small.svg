@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- The mark simplified for 16 and 32 px: one note and a straight stroke. -->
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2BD46E" />
+      <stop offset="1" stop-color="#138A47" />
+    </linearGradient>
+    <mask id="cut" maskUnits="userSpaceOnUse" x="0" y="0" width="32" height="32">
+      <rect width="32" height="32" fill="#fff" />
+      <path d="M7 7 L25 25" stroke="#000" stroke-width="7" stroke-linecap="round" />
+    </mask>
+  </defs>
+  <rect width="32" height="32" rx="8" fill="url(#tile)" />
+  <g fill="#fff" mask="url(#cut)">
+    <ellipse cx="12.5" cy="21.5" rx="5" ry="3.8" transform="rotate(-22 12.5 21.5)" />
+    <rect x="15.2" y="6" width="2.8" height="16" />
+    <path d="M17 6 L18 6 C21 7.2 24 9.5 22.8 14 C22.2 11.6 20.4 10.4 18 10.2 L17 10.2 Z" />
+  </g>
+  <path d="M7 7 L25 25" stroke="#0D3B2E" stroke-width="3" stroke-linecap="round" />
+</svg>

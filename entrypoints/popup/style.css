@@ -132,6 +132,8 @@ input:focus-visible {
 
 .field {
   display: grid;
+  /* Keep long option labels (the Arabic ones especially) from widening the card. */
+  grid-template-columns: minmax(0, 1fr);
   gap: 4px;
   margin-bottom: 12px;
 }
@@ -146,6 +148,7 @@ input:focus-visible {
 }
 
 select {
+  width: 100%;
   padding: 6px 8px;
   border: 1px solid var(--border);
   border-radius: 6px;

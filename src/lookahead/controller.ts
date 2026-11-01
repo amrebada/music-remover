@@ -2,6 +2,7 @@ import { browser } from 'wxt/browser';
 import { MODEL_FOR_QUALITY, type ModelId } from '../engine/models';
 import type { ModelState } from '../engine/protocol';
 import type { LookaheadState, RuntimeMessage } from '../shared/messages';
+import { setLanguage, t } from '../shared/i18n';
 import { DEFAULT_SETTINGS, getSettings, type Settings, watchSettings } from '../shared/settings';
 import { StreamDecoder } from './decoder';
 import { DEBUG_REPLY, DEBUG_REQUEST, DebugRecorder, debugEnabled } from '../shared/debug';
@@ -60,12 +61,14 @@ export class LookaheadController {
     for (const type of ['pointerdown', 'keydown']) window.addEventListener(type, this.resumeAudio, true);
 
     this.settings = await getSettings();
+    setLanguage(this.settings.language);
     watchSettings((settings) => this.applySettings(settings));
     setInterval(() => this.refreshStatus(), 500);
   }
 
   private applySettings(settings: Settings) {
     this.settings = settings;
+    setLanguage(settings.language);
     for (const { session } of this.sessions.values()) session.applySettings(settings);
     if (settings.enabled) this.bindAll();
   }
@@ -220,14 +223,14 @@ export class LookaheadController {
       state.readySec = Math.round(ready);
       state.waitingForGesture = !session.router.running;
       if (!session.router.running) {
-        this.chip.show(el, 'Music Remover: click to turn on cleaned audio', this.resumeAudio);
+        this.chip.show(el, t('chipClickToEnable'), this.resumeAudio);
       } else if (this.modelState.status === 'downloading') {
         const pct = Math.round((this.modelState.loaded / this.modelState.total) * 100);
-        this.chip.show(el, `Music Remover: downloading model ${pct}%`);
+        this.chip.show(el, t('chipDownloading', pct));
       } else if (this.modelState.status === 'error') {
-        this.chip.show(el, `Music Remover: ${this.modelState.message}`);
+        this.chip.show(el, t('chipError', this.modelState.message));
       } else if (!el.paused && ready < 0.05) {
-        this.chip.show(el, 'Music Remover: removing music…');
+        this.chip.show(el, t('chipRemoving'));
       } else {
         this.chip.hide();
       }

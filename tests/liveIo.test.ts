@@ -26,6 +26,7 @@ function createWorklet(): Processor {
   }
   runInNewContext(readFileSync(join(import.meta.dirname, '../public/worklets/live-io.js'), 'utf8'), {
     sampleRate: 44100,
+    currentTime: 0,
     AudioWorkletProcessor,
     registerProcessor: (_: string, ctor: typeof Ctor) => (Ctor = ctor),
     Float32Array,

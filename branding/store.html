@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Music Remover store images</title>
+    <!--
+      Chrome Web Store images, in English (?lang=en) or Arabic (?lang=ar).
+      scripts/make-brand.mjs serves this page with real popup captures in the same
+      language ([data-capture]) and screenshots each [data-asset] at its exact size. Layout uses
+      inline-start/end, so Arabic mirrors it; the store icon is the extension's own.
+    -->
+    <style>
+      @font-face {
+        font-family: 'Bricolage';
+        src: url('/node_modules/@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-standard-normal.woff2') format('woff2');
+        font-weight: 200 800;
+        font-stretch: 75% 100%;
+      }
+      @font-face {
+        font-family: 'Alexandria';
+        src: url('/node_modules/@fontsource-variable/alexandria/files/alexandria-arabic-wght-normal.woff2') format('woff2');
+        font-weight: 100 900;
+        unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF, U+200C-200F;
+      }
+
+      :root {
+        --forest: #0d3b2e;
+        --pine: #145a43;
+        --voice: #5be39a;
+        --mist: #e9f3ec;
+        --lilac: #a99bdb;
+        --white: #ffffff;
+      }
+
+      body {
+        margin: 0;
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 40px;
+        background: #6b7280;
+        font-family: 'Bricolage', sans-serif;
+      }
+      :lang(ar) body {
+        font-family: 'Alexandria', 'Bricolage', sans-serif;
+      }
+
+      .board {
+        position: relative;
+        overflow: hidden;
+        flex: none;
+        background: var(--forest);
+        color: var(--mist);
+      }
+
+      .small-tile { width: 440px; height: 280px; }
+      .marquee { width: 1400px; height: 560px; }
+      .shot { width: 1280px; height: 800px; }
+
+      h1, h2, p { margin: 0; }
+
+      .wordmark {
+        font-weight: 780;
+        font-stretch: 86%;
+        letter-spacing: -0.02em;
+        line-height: 0.95;
+        color: var(--white);
+      }
+
+      .headline {
+        font-weight: 760;
+        font-stretch: 86%;
+        font-size: 76px;
+        line-height: 0.98;
+        letter-spacing: -0.025em;
+        color: var(--white);
+        text-wrap: balance;
+      }
+
+      .lede {
+        font-size: 27px;
+        line-height: 1.36;
+        font-weight: 420;
+        color: color-mix(in srgb, var(--mist) 82%, transparent);
+        text-wrap: pretty;
+      }
+
+      .tagline { white-space: pre-line; }
+
+      /* Arabic letters join, so no tracking; its tall ascenders and descenders need more leading. */
+      :lang(ar) .wordmark,
+      :lang(ar) .headline {
+        letter-spacing: 0;
+        font-weight: 750;
+        line-height: 1.3;
+      }
+      :lang(ar) .headline { font-size: 60px; }
+      :lang(ar) .lede { font-size: 25px; line-height: 1.7; font-weight: 360; }
+
+      .motif {
+        position: absolute;
+        display: block;
+      }
+      .fade-start { mask-image: linear-gradient(to right, transparent, #000 160px); }
+      :dir(rtl) .fade-start { mask-image: linear-gradient(to left, transparent, #000 160px); }
+
+      .popup {
+        position: absolute;
+        z-index: 1;
+        border-radius: 14px;
+        box-shadow: 0 30px 60px -20px rgb(0 0 0 / 0.55), 0 0 0 1px rgb(255 255 255 / 0.06);
+        display: block;
+      }
+
+      .split-logo {
+        position: absolute;
+        border-radius: 28%;
+        box-shadow: 0 0 0 10px var(--forest);
+      }
+
+      /* Small promo tile */
+      .small-tile .lockup {
+        position: absolute;
+        inset-inline-start: 30px;
+        top: 30px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .small-tile .lockup img { width: 58px; height: 58px; }
+      .small-tile .wordmark { font-size: 42px; }
+      :lang(ar) .small-tile .wordmark { font-size: 36px; }
+      .small-tile .tagline {
+        position: absolute;
+        inset-inline-start: 30px;
+        top: 112px;
+        font-size: 25px;
+        line-height: 1.18;
+        font-weight: 560;
+        color: var(--mist);
+      }
+      :lang(ar) .small-tile .tagline { top: 104px; font-size: 22px; line-height: 1.5; font-weight: 500; }
+
+      /* Marquee */
+      .marquee .wordmark { position: absolute; inset-inline-start: 88px; top: 96px; font-size: 92px; }
+      .marquee .tagline {
+        position: absolute;
+        inset-inline-start: 88px;
+        top: 218px;
+        width: 560px;
+        font-size: 40px;
+        line-height: 1.12;
+        font-weight: 600;
+        color: var(--mist);
+      }
+      .marquee .lede { position: absolute; inset-inline-start: 88px; top: 352px; width: 540px; font-size: 24px; }
+      :lang(ar) .marquee .wordmark { top: 70px; font-size: 80px; }
+      :lang(ar) .marquee .tagline { top: 210px; font-size: 34px; line-height: 1.55; font-weight: 500; }
+      :lang(ar) .marquee .lede { top: 356px; font-size: 22px; }
+
+      /* Screenshots */
+      .shot .copy { position: absolute; inset-inline-start: 88px; top: 92px; width: 600px; display: grid; gap: 28px; }
+
+      .keys { display: flex; gap: 14px; align-items: center; margin-top: 18px; font-size: 26px; color: var(--mist); }
+      .key {
+        min-width: 64px;
+        padding: 14px 20px 18px;
+        border-radius: 14px;
+        background: var(--pine);
+        box-shadow: inset 0 -5px 0 rgb(0 0 0 / 0.28), 0 0 0 1px rgb(255 255 255 / 0.08);
+        color: var(--white);
+        font-family: 'Bricolage', sans-serif;
+        font-weight: 640;
+        text-align: center;
+      }
+
+      .facts { display: grid; gap: 14px; margin-top: 8px; font-size: 23px; line-height: 1.35; color: var(--mist); }
+      .facts p { padding-inline-start: 22px; border-inline-start: 3px solid var(--voice); }
+      :lang(ar) .facts { font-size: 21px; }
+      :lang(ar) .facts p { line-height: 1.6; }
+
+      .player {
+        position: absolute;
+        inset-inline-start: 704px;
+        top: 92px;
+        width: 488px;
+      }
+      .screen {
+        position: relative;
+        height: 274px;
+        border-radius: 16px;
+        overflow: hidden;
+        background:
+          radial-gradient(120px 120px at 50% 58%, #2d6e57 0 60%, transparent 61%),
+          radial-gradient(200px 120px at 50% 112%, #2d6e57 0 70%, transparent 71%),
+          linear-gradient(160deg, #1f5a47, #0f3a2d 70%);
+      }
+      .screen .bar {
+        position: absolute;
+        inset-inline: 18px;
+        bottom: 18px;
+        height: 5px;
+        border-radius: 3px;
+        background: rgb(255 255 255 / 0.25);
+      }
+      .screen .bar::before {
+        content: '';
+        position: absolute;
+        inset-block: 0;
+        inset-inline: 0 52%;
+        border-radius: 3px;
+        background: var(--white);
+      }
+      .tracks { position: relative; margin-top: 30px; display: grid; gap: 22px; }
+      .track { display: grid; gap: 8px; font-size: 21px; font-weight: 560; color: var(--mist); }
+      .track svg { display: block; }
+      .playhead {
+        position: absolute;
+        inset-inline-start: calc(48% - 1px);
+        top: -50px;
+        bottom: -6px;
+        width: 2px;
+        background: var(--white);
+        opacity: 0.9;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="board small-tile" data-asset="promo-small-440x280">
+      <div class="lockup">
+        <img src="logo.svg" alt="" />
+        <span class="wordmark" data-t="name"></span>
+      </div>
+      <p class="tagline" data-t="tagline"></p>
+      <svg class="motif" data-motif='{"width":440,"height":64,"split":250,"seed":7,"bar":3,"gap":3.4}' style="inset-inline-start: 0; top: 196px"></svg>
+    </div>
+
+    <div class="board marquee" data-asset="promo-marquee-1400x560">
+      <h1 class="wordmark" data-t="name"></h1>
+      <p class="tagline" data-t="tagline"></p>
+      <p class="lede" data-t="marqueeLede"></p>
+      <svg class="motif fade-start" data-motif='{"width":760,"height":230,"split":300,"seed":3}' style="inset-inline-start: 640px; top: 166px"></svg>
+      <img class="split-logo" src="logo.svg" alt="" style="inset-inline-start: 892px; top: 251px; width: 96px; height: 96px" />
+    </div>
+
+    <div class="board shot" data-asset="screenshot-1-voices">
+      <div class="copy">
+        <h2 class="headline tagline" data-t="tagline"></h2>
+        <p class="lede" data-t="voicesLede"></p>
+      </div>
+      <img class="popup" data-capture="popup-auto" alt="" style="inset-inline-start: 812px; top: 92px; width: 380px" />
+      <svg class="motif" data-motif='{"width":1280,"height":200,"split":600,"seed":11}' style="inset-inline-start: 0; top: 536px"></svg>
+      <img class="split-logo" src="logo.svg" alt="" style="inset-inline-start: 556px; top: 608px; width: 88px; height: 88px" />
+    </div>
+
+    <div class="board shot" data-asset="screenshot-2-sites">
+      <div class="copy">
+        <h2 class="headline" data-t="sitesHeadline"></h2>
+        <p class="lede" data-t="sitesLede"></p>
+      </div>
+      <div class="player">
+        <div class="screen"><div class="bar"></div></div>
+        <div class="tracks">
+          <div class="track">
+            <span data-t="trackOriginal"></span>
+            <svg data-track='{"width":488,"height":96,"seed":5,"music":true}'></svg>
+          </div>
+          <div class="track">
+            <span data-t="trackHeard"></span>
+            <svg data-track='{"width":488,"height":96,"seed":5,"music":false}'></svg>
+          </div>
+          <div class="playhead"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="board shot" data-asset="screenshot-3-live">
+      <div class="copy" style="top: 200px">
+        <h2 class="headline" data-t="liveHeadline"></h2>
+        <p class="lede" data-t="liveLede"></p>
+        <div class="keys"><span class="key">Alt</span>+<span class="key">Shift</span>+<span class="key">M</span></div>
+      </div>
+      <img class="popup" data-capture="popup-live" alt="" style="inset-inline-start: 772px; top: 200px; width: 420px" />
+    </div>
+
+    <div class="board shot" data-asset="screenshot-4-private">
+      <div class="copy" style="top: 170px">
+        <h2 class="headline" data-t="privateHeadline"></h2>
+        <p class="lede" data-t="privateLede"></p>
+        <div class="facts">
+          <p data-t="factFast"></p>
+          <p data-t="factHigh"></p>
+          <p data-t="factStrength"></p>
+        </div>
+      </div>
+      <img class="popup" data-capture="popup-settings" alt="" style="inset-inline-start: 780px; top: 160px; width: 412px" />
+    </div>
+
+    <script>
+      const COPY = {
+        en: {
+          name: 'Music Remover',
+          tagline: 'Keeps the voices.\nRemoves the music.',
+          marqueeLede: 'Works by itself on YouTube, Facebook, Instagram and LinkedIn, with live mode for any other site.',
+          voicesLede: 'Background music drops out of the videos you watch, while speech and singing stay clear.',
+          sitesHeadline: 'Works by itself on YouTube, Facebook, Instagram and LinkedIn',
+          sitesLede: 'It cleans the sound a few seconds before it plays, so every word still lines up with the lips.',
+          trackOriginal: "The video's sound",
+          trackHeard: 'What you hear',
+          liveHeadline: 'Live mode for every other site',
+          liveLede: 'Click Start live mode in the extension menu, or use the shortcut. The sound plays about 0.15\u00a0seconds behind the picture.',
+          privateHeadline: 'Runs on your computer',
+          privateLede: 'The AI model runs inside Chrome. Your audio is never uploaded, and there is no account to create.',
+          factFast: 'Fast model: 36 MB, runs on the processor',
+          factHigh: 'High quality model: 181 MB, runs on the graphics card',
+          factStrength: 'You choose how much of the music to remove',
+        },
+        ar: {
+          name: 'مزيل الموسيقى',
+          tagline: 'يُبقي الأصوات.\nويحذف الموسيقى.',
+          marqueeLede: 'يعمل تلقائيًا على يوتيوب وفيسبوك وإنستغرام ولينكدإن، ومعه الوضع المباشر لأي موقع آخر.',
+          voicesLede: 'تختفي الموسيقى الخلفية من الفيديوهات التي تشاهدها، ويبقى الكلام والغناء واضحَين.',
+          sitesHeadline: 'يعمل تلقائيًا على يوتيوب وفيسبوك وإنستغرام ولينكدإن',
+          sitesLede: 'ينقّي الصوت قبل تشغيله ببضع ثوانٍ، فتبقى كل كلمة متزامنة مع حركة الشفاه.',
+          trackOriginal: 'صوت الفيديو',
+          trackHeard: 'ما تسمعه',
+          liveHeadline: 'الوضع المباشر لأي موقع آخر',
+          liveLede: 'انقر «تشغيل الوضع المباشر» في قائمة الإضافة، أو استخدم الاختصار. يتأخر الصوت عن الصورة بنحو\u00a00.15\u00a0ثانية.',
+          privateHeadline: 'يعمل على جهازك',
+          privateLede: 'يعمل نموذج الذكاء الاصطناعي داخل كروم. لا يُرفع صوتك إلى أي مكان، ولا حاجة إلى إنشاء حساب.',
+          factFast: 'النموذج السريع: 36 ميغابايت، يعمل على المعالج',
+          factHigh: 'النموذج عالي الجودة: 181 ميغابايت، يعمل على بطاقة الرسومات',
+          factStrength: 'أنت تختار مقدار الموسيقى المحذوفة',
+        },
+      };
+
+      const lang = new URLSearchParams(location.search).get('lang') === 'ar' ? 'ar' : 'en';
+      document.documentElement.lang = lang;
+      document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      const rtl = lang === 'ar';
+      for (const node of document.querySelectorAll('[data-t]')) node.textContent = COPY[lang][node.dataset.t];
+      for (const image of document.querySelectorAll('[data-capture]')) image.src = `/captures/${image.dataset.capture}.png?lang=${lang}`;
+
+      const NS = 'http://www.w3.org/2000/svg';
+      const css = getComputedStyle(document.documentElement);
+      const color = (name) => css.getPropertyValue(name).trim();
+
+      function random(seed) {
+        let s = seed >>> 0;
+        return () => {
+          s = (s * 1664525 + 1013904223) >>> 0;
+          return s / 2 ** 32;
+        };
+      }
+
+      function el(name, attrs, parent) {
+        const node = document.createElementNS(NS, name);
+        for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, value);
+        parent.append(node);
+        return node;
+      }
+
+      /** Speech: bursts of syllables with pauses between words. Music: steady and dense. */
+      function levels(count, seed) {
+        const r = random(seed);
+        const voice = new Array(count).fill(0).map(() => 0.03 + r() * 0.03);
+        for (let at = 2; at < count; ) {
+          const length = 5 + Math.floor(r() * 12);
+          const peak = 0.55 + r() * 0.45;
+          for (let i = 0; i < length && at + i < count; i++) {
+            const shape = Math.sin((Math.PI * (i + 0.5)) / length) ** 0.7;
+            voice[at + i] = Math.max(voice[at + i], peak * shape * (0.6 + 0.4 * r()));
+          }
+          at += length + 2 + Math.floor(r() * 5);
+        }
+        const music = Array.from({ length: count }, (_, i) => 0.42 + 0.22 * Math.sin(i * 0.31) ** 2 + 0.2 * r());
+        return { voice, music };
+      }
+
+      /** Positions run along the reading direction, so Arabic draws from the right. */
+      function along(width) {
+        return (x) => (rtl ? width - x : x);
+      }
+
+      function bar(parent, x, mid, height, width, fill, opacity = 1) {
+        const h = Math.max(width, height);
+        el('rect', { x: x - width / 2, y: mid - h / 2, width, height: h, rx: width / 2, fill, opacity }, parent);
+      }
+
+      function note(parent, x, y, size, opacity, angle) {
+        const g = el('g', { transform: `translate(${x} ${y}) rotate(${angle}) scale(${size / 24})`, fill: color('--lilac'), opacity }, parent);
+        el('ellipse', { cx: 7, cy: 19, rx: 4.6, ry: 3.4, transform: 'rotate(-22 7 19)' }, g);
+        el('rect', { x: 10, y: 3, width: 2.4, height: 16 }, g);
+        el('path', { d: 'M11 3 L12.4 3 C15.6 4.2 18.8 6.6 17.6 11.6 C16.8 9 14.8 7.8 12.4 7.6 L11 7.6 Z' }, g);
+      }
+
+      /** The brand motif: mixed sound first; past `split` only the voice goes on and the music drifts away. */
+      function motif(svg, { width, height, split, seed, bar: w = 4, gap = 5 }) {
+        svg.setAttribute('width', width);
+        svg.setAttribute('height', height);
+        svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+        const at = along(width);
+        const step = w + gap;
+        const count = Math.ceil(width / step);
+        const { voice, music } = levels(count, seed);
+        const mid = height * 0.58;
+        const r = random(seed + 99);
+        for (let i = 0; i < count; i++) {
+          const x = i * step + step / 2;
+          if (x < split) bar(svg, at(x), mid, music[i] * height * 0.62, w, color('--lilac'), 0.9);
+          else {
+            // Each music bar breaks into a few drifting specks that fade with distance.
+            const fade = Math.exp(-(x - split) / 120);
+            if (fade < 0.04) continue;
+            for (let k = 0; k < 2; k++) {
+              const drift = (x - split) * (0.18 + 0.12 * r());
+              const y = mid - music[i] * height * 0.31 - drift - r() * 10;
+              if (y < 4) continue;
+              el('circle', { cx: at(x + (r() - 0.5) * step), cy: y, r: (w / 2) * (0.55 + 0.4 * fade), fill: color('--lilac'), opacity: fade * 0.9 }, svg);
+            }
+          }
+        }
+        for (let i = 0; i < count; i++) bar(svg, at(i * step + gap / 2 + w), mid, voice[i] * height * 0.72, w, color('--voice'));
+        const notes = Math.max(2, Math.round(width / 220));
+        for (let k = 0; k < notes; k++) {
+          const t = (k + 0.5) / notes;
+          const x = split + 40 + t * Math.min(420, width - split - 80);
+          const size = height * (0.22 - t * 0.06);
+          // Notes are never mirrored; only where they sit follows the direction.
+          note(svg, at(x) - (rtl ? size * 0.75 : 0), Math.max(2, mid - height * 0.42 - t * height * 0.25), size, 0.85 - t * 0.6, -12 + 24 * r());
+        }
+      }
+
+      /** One audio track of the player illustration, with or without the music. */
+      function track(svg, { width, height, seed, music: withMusic }) {
+        svg.setAttribute('width', width);
+        svg.setAttribute('height', height);
+        svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+        const at = along(width);
+        el('rect', { width, height, rx: 14, fill: color('--pine') }, svg);
+        const w = 3;
+        const step = 7;
+        const count = Math.floor((width - 24) / step);
+        const { voice, music } = levels(count, seed);
+        for (let i = 0; i < count; i++) {
+          const x = 12 + i * step + step / 2;
+          if (withMusic) bar(svg, at(x + step / 2), height / 2, music[i] * height * 0.6, w, color('--lilac'), 0.9);
+          bar(svg, at(x), height / 2, voice[i] * height * 0.72, w, color('--voice'));
+        }
+      }
+
+      for (const svg of document.querySelectorAll('[data-motif]')) motif(svg, JSON.parse(svg.dataset.motif));
+      for (const svg of document.querySelectorAll('[data-track]')) track(svg, JSON.parse(svg.dataset.track));
+    </script>
+  </body>
+</html>

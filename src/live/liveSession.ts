@@ -10,6 +10,8 @@ import { LIVE_CAPTURE_BATCH, LIVE_CUSHION, LIVE_PRESETS, LIVE_RATE } from './pre
 /** From the audio worklet: times playback ran dry, frames dropped to cut spare delay, and the current cushion. */
 export interface LiveStats {
   underruns: number;
+  /** Seconds since playback last ran dry, or null if it never did. */
+  sinceUnderrun: number | null;
   dropped: number;
   cushion: number;
 }

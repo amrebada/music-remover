@@ -3,8 +3,10 @@ import { defineConfig } from 'wxt';
 // See https://wxt.dev/api/config.html
 export default defineConfig({
   manifest: {
-    name: 'Music Remover',
-    description: 'Removes background music from videos and keeps the voices. Runs fully on your device.',
+    // Translations live in public/_locales; the store lists each language's name and description.
+    name: '__MSG_extName__',
+    description: '__MSG_extDescription__',
+    default_locale: 'en',
     permissions: ['tabCapture', 'offscreen', 'storage', 'activeTab'],
     // Model weights are downloaded once from Hugging Face and cached.
     host_permissions: ['https://huggingface.co/*', 'https://*.hf.co/*'],
@@ -14,7 +16,7 @@ export default defineConfig({
     commands: {
       'toggle-live': {
         suggested_key: { default: 'Alt+Shift+M' },
-        description: 'Start or stop live music removal on this tab',
+        description: '__MSG_commandToggleLive__',
       },
     },
   },
