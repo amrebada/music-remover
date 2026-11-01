@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>MSE test player</title>
+  </head>
+  <body>
+    <!-- Served as https://www.youtube.com/mr-test so the content scripts run. -->
+    <video id="video" width="640" height="360"></video>
+    <button id="play" type="button">Play</button>
+    <script>
+      // Feeds the fixtures through MediaSource in small pieces, the way a DASH player does.
+      const video = document.getElementById('video');
+      const mode = new URLSearchParams(location.search).get('mode') ?? 'split';
+      const tracks =
+        mode === 'muxed'
+          ? [['video/mp4; codecs="avc1.64001e,mp4a.40.2"', '/fixtures/mix-muxed.mp4']]
+          : [
+              ['video/mp4; codecs="avc1.64001e"', '/fixtures/mix-video.mp4'],
+              ['audio/mp4; codecs="mp4a.40.2"', '/fixtures/mix-audio.mp4'],
+            ];
+      const mediaSource = new MediaSource();
+      video.src = URL.createObjectURL(mediaSource);
+      mediaSource.addEventListener('sourceopen', async () => {
+        await Promise.all(
+          tracks.map(async ([mime, url]) => {
+            const buffer = mediaSource.addSourceBuffer(mime);
+            const data = await (await fetch(url)).arrayBuffer();
+            for (let pos = 0; pos < data.byteLength; pos += 65536) {
+              buffer.appendBuffer(data.slice(pos, pos + 65536));
+              await new Promise((resolve) => buffer.addEventListener('updateend', resolve, { once: true }));
+            }
+          }),
+        );
+        mediaSource.endOfStream();
+        window.mediaReady = true;
+      });
+      document.getElementById('play').addEventListener('click', () => video.play());
+    </script>
+  </body>
+</html>

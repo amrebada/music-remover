@@ -1,0 +1,7 @@
+{
+  "extends": "./.wxt/tsconfig.json",
+  "compilerOptions": {
+    // DSP code indexes typed arrays everywhere; bounds are checked by the loops.
+    "noUncheckedIndexedAccess": false
+  }
+}

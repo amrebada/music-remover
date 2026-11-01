@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Music Remover</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Music Remover</h1>
+      <p class="sub">Keeps the voices, removes the music. Runs on your device.</p>
+    </header>
+
+    <section class="card" aria-labelledby="tab-heading">
+      <h2 id="tab-heading">This tab</h2>
+      <p id="tab-status" class="status">Checking…</p>
+      <button id="live-toggle" type="button" class="primary">Start live mode</button>
+      <p id="live-hint" class="hint"></p>
+    </section>
+
+    <section class="card" aria-labelledby="settings-heading">
+      <h2 id="settings-heading">Settings</h2>
+
+      <label class="switch-row">
+        <span>
+          Remove music automatically
+          <small>YouTube, Facebook, Instagram, LinkedIn</small>
+        </span>
+        <input id="enabled" type="checkbox" role="switch" />
+      </label>
+
+      <label class="field">
+        <span>Music removal <output id="strength-value">100%</output></span>
+        <input id="strength" type="range" min="0" max="100" step="5" />
+      </label>
+
+      <label class="field">
+        <span>Quality</span>
+        <select id="quality">
+          <option value="fast">Fast (36 MB model)</option>
+          <option value="high">High (181 MB model, needs a GPU)</option>
+        </select>
+        <small id="model-status" class="hint"></small>
+      </label>
+
+      <label class="field">
+        <span>Live mode delay</span>
+        <select id="liveLatency">
+          <option value="low">Low (about 1 s)</option>
+          <option value="balanced">Balanced (about 2 s)</option>
+          <option value="clean">Cleanest (about 4 s)</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Before cleaned audio is ready</span>
+        <select id="whenNotReady">
+          <option value="mute">Mute</option>
+          <option value="original">Play the original</option>
+        </select>
+      </label>
+    </section>
+
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

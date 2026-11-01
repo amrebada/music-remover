@@ -1,0 +1,30 @@
+{
+  "name": "music-remover",
+  "description": "Removes background music from videos and keeps the voices. Runs fully on-device.",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "wxt",
+    "build": "wxt build",
+    "zip": "wxt zip",
+    "compile": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "wxt build && playwright test",
+    "fixtures": "node scripts/make-fixtures.mjs",
+    "postinstall": "wxt prepare"
+  },
+  "dependencies": {
+    "demucs-web": "1.0.2",
+    "mp4box": "^2.5.0",
+    "onnxruntime-web": "^1.31.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "typescript": "^5.9.3",
+    "vite": "^8.1.5",
+    "vitest": "^5.0.5",
+    "wxt": "^0.21.5"
+  }
+}
