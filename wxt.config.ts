@@ -20,6 +20,10 @@ export default defineConfig({
       },
     },
   },
+  zip: {
+    // The model benchmark page is for development and the tests; users never open it.
+    exclude: ['bench.html', 'chunks/bench-*.js'],
+  },
   vite: () => ({
     worker: { format: 'es' },
   }),

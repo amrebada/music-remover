@@ -10,7 +10,8 @@ declare const chrome: {
 };
 
 export const ROOT = join(import.meta.dirname, '..', '..');
-export const EXTENSION = join(ROOT, '.output', 'chrome-mv3');
+/** The built extension; set EXTENSION_DIR to test another copy, such as the unzipped store package. */
+export const EXTENSION = process.env.EXTENSION_DIR ?? join(ROOT, '.output', 'chrome-mv3');
 
 /** Chrome derives an unpacked extension's id from its path. */
 export function extensionId(path = EXTENSION): string {
@@ -37,10 +38,10 @@ export async function launch({ args = [], unmuted = false }: { args?: string[]; 
   return context;
 }
 
-/** Opens an extension page to drive the extension from. */
+/** Opens an extension page to drive the extension from (the popup, which every package has). */
 export async function controlPage(context: BrowserContext): Promise<Page> {
   const page = await context.newPage();
-  await page.goto(`chrome-extension://${extensionId()}/bench.html`);
+  await page.goto(`chrome-extension://${extensionId()}/popup.html`);
   return page;
 }
 

@@ -95,6 +95,14 @@ In each language folder:
 | `promo-small-440x280.png` | Small promo tile |
 | `promo-marquee-1400x560.png` | Marquee promo tile |
 
+## Publishing
+
+```bash
+pnpm zip
+```
+
+This writes `.output/music-remover-<version>-chrome.zip`, the file to upload to the Chrome Web Store (it leaves out the developer benchmark page). To run the browser tests against exactly what is in it, unzip it and set `EXTENSION_DIR` to that folder. [branding/store/listing.md](branding/store/listing.md) has the texts the store's form asks for, and [PRIVACY.md](PRIVACY.md) is the privacy policy.
+
 ## Known limits
 
 - Lookahead understands fragmented MP4 (AAC or Opus). On YouTube the extension reports WebM audio as unsupported so the player serves AAC. Players that use other containers, MSE inside workers, or DRM fall back to live mode.
